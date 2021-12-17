@@ -37,13 +37,13 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING, OCTETS
  16 .debug_macro  00012cec  00000000  00000000  00029e28  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 17 .debug_line   00008368  00000000  00000000  0003cb14  2**0
+ 17 .debug_line   00009358  00000000  00000000  0003cb14  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 18 .debug_str    00077313  00000000  00000000  00044e7c  2**0
+ 18 .debug_str    00077309  00000000  00000000  00045e6c  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .comment      00000053  00000000  00000000  000bc18f  2**0
+ 19 .comment      00000053  00000000  00000000  000bd175  2**0
                   CONTENTS, READONLY
- 20 .debug_frame  00002148  00000000  00000000  000bc1e4  2**2
+ 20 .debug_frame  00002148  00000000  00000000  000bd1c8  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
@@ -880,12 +880,12 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		{
 			debounceCounter++;
  800075a:	4b1b      	ldr	r3, [pc, #108]	; (80007c8 <HAL_TIM_PeriodElapsedCallback+0xa8>)
- 800075c:	781b      	ldrb	r3, [r3, #0]
- 800075e:	b2db      	uxtb	r3, r3
+ 800075c:	881b      	ldrh	r3, [r3, #0]
+ 800075e:	b29b      	uxth	r3, r3
  8000760:	3301      	adds	r3, #1
- 8000762:	b2da      	uxtb	r2, r3
+ 8000762:	b29a      	uxth	r2, r3
  8000764:	4b18      	ldr	r3, [pc, #96]	; (80007c8 <HAL_TIM_PeriodElapsedCallback+0xa8>)
- 8000766:	701a      	strb	r2, [r3, #0]
+ 8000766:	801a      	strh	r2, [r3, #0]
  8000768:	e002      	b.n	8000770 <HAL_TIM_PeriodElapsedCallback+0x50>
 		}
 		else
@@ -893,14 +893,14 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 			debounceCounter = 0;
  800076a:	4b17      	ldr	r3, [pc, #92]	; (80007c8 <HAL_TIM_PeriodElapsedCallback+0xa8>)
  800076c:	2200      	movs	r2, #0
- 800076e:	701a      	strb	r2, [r3, #0]
+ 800076e:	801a      	strh	r2, [r3, #0]
 		}
 
 		if (debounceCounter >= DEBOUNCING_STABLE_PERIOD)
  8000770:	4b15      	ldr	r3, [pc, #84]	; (80007c8 <HAL_TIM_PeriodElapsedCallback+0xa8>)
- 8000772:	781b      	ldrb	r3, [r3, #0]
- 8000774:	b2db      	uxtb	r3, r3
- 8000776:	2b09      	cmp	r3, #9
+ 8000772:	881b      	ldrh	r3, [r3, #0]
+ 8000774:	b29b      	uxth	r3, r3
+ 8000776:	2bf9      	cmp	r3, #249	; 0xf9
  8000778:	d919      	bls.n	80007ae <HAL_TIM_PeriodElapsedCallback+0x8e>
 		{
 			HAL_TIM_Base_Stop_IT(&htim6);	// Timer 6 for debouncing BUTTON_USER
@@ -909,7 +909,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 			debounceCounter = 0;
  8000780:	4b11      	ldr	r3, [pc, #68]	; (80007c8 <HAL_TIM_PeriodElapsedCallback+0xa8>)
  8000782:	2200      	movs	r2, #0
- 8000784:	701a      	strb	r2, [r3, #0]
+ 8000784:	801a      	strh	r2, [r3, #0]
 
 			if (currentButton != 0)
  8000786:	4b0d      	ldr	r3, [pc, #52]	; (80007bc <HAL_TIM_PeriodElapsedCallback+0x9c>)

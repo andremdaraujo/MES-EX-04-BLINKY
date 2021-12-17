@@ -31,7 +31,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define DEBOUNCING_STABLE_PERIOD 10	// 10 ms
+#define DEBOUNCING_STABLE_PERIOD 250	// period in ms
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -50,7 +50,7 @@ volatile uint8_t  toggleBlueLED  = 0;
 volatile uint16_t currentButton  = 0;
 volatile uint16_t previousButton = 0;
 
-volatile uint8_t debounceCounter = 0;
+volatile uint16_t debounceCounter = 0;
 volatile uint16_t debouncedButtonPressed  = 0;
 volatile uint16_t debouncedButtonReleased = 0;
 
