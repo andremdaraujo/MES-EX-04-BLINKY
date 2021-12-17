@@ -31,6 +31,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+#define DEBOUNCING_STABLE_PERIOD 10	// 10 ms
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -45,8 +46,13 @@ TIM_HandleTypeDef htim7;
 /* USER CODE BEGIN PV */
 volatile uint8_t  toggleGreenLED = 0;
 volatile uint8_t  toggleBlueLED  = 0;
-volatile uint16_t buttonPressed  = 0;
-volatile uint16_t buttonReleased = 0;
+
+volatile uint16_t currentButton  = 0;
+volatile uint16_t previousButton = 0;
+
+volatile uint8_t debounceCounter = 0;
+volatile uint16_t debouncedButtonPressed  = 0;
+volatile uint16_t debouncedButtonReleased = 0;
 
 /* USER CODE END PV */
 
@@ -96,8 +102,8 @@ int main(void)
   MX_TIM7_Init();
   /* USER CODE BEGIN 2 */
 
-	HAL_TIM_Base_Start_IT(&htim6);	// Timer 6 for debouncing BUTTON_USER
-	HAL_TIM_Base_Start_IT(&htim7);	// Timer 7 for blinking LED_GREEN
+  currentButton = HAL_GPIO_ReadPin(BUTTON_USER_GPIO_Port, BUTTON_USER_Pin);
+  HAL_TIM_Base_Start_IT(&htim7);	// Timer 7 for blinking LED_GREEN
 
   /* USER CODE END 2 */
 
@@ -109,10 +115,14 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 
-	  if (buttonPressed != 0)
-	  {
+	  if (debouncedButtonPressed != 0)	// Toggles BLUE LED every time the button is pressed
+	  {									// (Rising edge detection)
 		  HAL_GPIO_TogglePin(LED_BLUE_GPIO_Port, LED_BLUE_Pin);
-		  buttonPressed = 0;
+		  debouncedButtonPressed = 0;
+	  }
+	  if (debouncedButtonReleased != 0)
+	  {
+		  debouncedButtonReleased = 0;	// TO DO
 	  }
 
 	  if (toggleGreenLED != 0)
@@ -186,7 +196,7 @@ static void MX_TIM6_Init(void)
   htim6.Instance = TIM6;
   htim6.Init.Prescaler = (32000 - 1);
   htim6.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim6.Init.Period = (500 - 1);
+  htim6.Init.Period = (2 - 1);
   htim6.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim6) != HAL_OK)
   {
@@ -287,7 +297,32 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
 	if(htim == &htim6)
 	{
-		toggleBlueLED = 1;
+		previousButton = currentButton;
+		currentButton = HAL_GPIO_ReadPin(BUTTON_USER_GPIO_Port, BUTTON_USER_Pin);
+		if (currentButton == previousButton)
+		{
+			debounceCounter++;
+		}
+		else
+		{
+			debounceCounter = 0;
+		}
+
+		if (debounceCounter >= DEBOUNCING_STABLE_PERIOD)
+		{
+			HAL_TIM_Base_Stop_IT(&htim6);	// Timer 6 for debouncing BUTTON_USER
+			debounceCounter = 0;
+
+			if (currentButton != 0)
+			{
+				debouncedButtonPressed = 1;
+			}
+			else
+			{
+				debouncedButtonReleased = 1;
+			}
+			//HAL_NVIC_EnableIRQ(EXTI0_IRQn);
+		}
 	}
 	else if (htim == &htim7)
 	{
@@ -299,16 +334,8 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
 	if(GPIO_Pin == BUTTON_USER_Pin)
 	{
-		if (HAL_GPIO_ReadPin(BUTTON_USER_GPIO_Port, BUTTON_USER_Pin) == 1)
-		{
-			buttonPressed  = 1;
-			buttonReleased = 0;
-		}
-		else
-		{
-			buttonPressed  = 0;
-			buttonReleased = 1;
-		}
+		//HAL_NVIC_DisableIRQ(EXTI0_IRQn);
+		HAL_TIM_Base_Start_IT(&htim6);	// Timer 6 for debouncing BUTTON_USER
 	}
 }
 
