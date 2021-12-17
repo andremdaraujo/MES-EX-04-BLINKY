@@ -31,7 +31,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define DEBOUNCING_STABLE_PERIOD 250	// period in ms
+#define DEBOUNCING_STABLE_PERIOD 10	// period in ms
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -117,11 +117,14 @@ int main(void)
 
 	  if (debouncedButtonPressed != 0)	// Toggles BLUE LED every time the button is pressed
 	  {									// (Rising edge detection)
+		  HAL_GPIO_WritePin(OUT_TEST_GPIO_Port, OUT_TEST_Pin, 0);
 		  HAL_GPIO_TogglePin(LED_BLUE_GPIO_Port, LED_BLUE_Pin);
 		  debouncedButtonPressed = 0;
 	  }
 	  if (debouncedButtonReleased != 0)
 	  {
+		  HAL_GPIO_WritePin(OUT_TEST_GPIO_Port, OUT_TEST_Pin, 1);
+		  HAL_GPIO_WritePin(OUT_TEST_GPIO_Port, OUT_TEST_Pin, 0);
 		  debouncedButtonReleased = 0;	// TO DO
 	  }
 
@@ -194,7 +197,7 @@ static void MX_TIM6_Init(void)
 
   /* USER CODE END TIM6_Init 1 */
   htim6.Instance = TIM6;
-  htim6.Init.Prescaler = (32000 - 1);
+  htim6.Init.Prescaler = (16000 - 1);
   htim6.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim6.Init.Period = (2 - 1);
   htim6.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
@@ -262,16 +265,26 @@ static void MX_GPIO_Init(void)
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   /* GPIO Ports Clock Enable */
-  __HAL_RCC_GPIOA_CLK_ENABLE();
+  __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(OUT_TEST_GPIO_Port, OUT_TEST_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, LED_BLUE_Pin|LED_GREEN_Pin, GPIO_PIN_RESET);
 
+  /*Configure GPIO pin : OUT_TEST_Pin */
+  GPIO_InitStruct.Pin = OUT_TEST_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(OUT_TEST_GPIO_Port, &GPIO_InitStruct);
+
   /*Configure GPIO pin : BUTTON_USER_Pin */
   GPIO_InitStruct.Pin = BUTTON_USER_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(BUTTON_USER_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : LED_BLUE_Pin LED_GREEN_Pin */
@@ -282,8 +295,8 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /* EXTI interrupt init*/
-  HAL_NVIC_SetPriority(EXTI0_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(EXTI0_IRQn);
+  HAL_NVIC_SetPriority(EXTI9_5_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
 
 }
 
@@ -313,7 +326,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 			HAL_TIM_Base_Stop_IT(&htim6);	// Timer 6 for debouncing BUTTON_USER
 			debounceCounter = 0;
 
-			if (currentButton != 0)
+			if (currentButton == 0)
 			{
 				debouncedButtonPressed = 1;
 			}
@@ -335,6 +348,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 	if(GPIO_Pin == BUTTON_USER_Pin)
 	{
 		//HAL_NVIC_DisableIRQ(EXTI0_IRQn);
+		HAL_GPIO_WritePin(OUT_TEST_GPIO_Port, OUT_TEST_Pin, 1);
 		HAL_TIM_Base_Start_IT(&htim6);	// Timer 6 for debouncing BUTTON_USER
 	}
 }
