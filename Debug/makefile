@@ -60,8 +60,8 @@ all: main-build
 main-build: MES-EX-04-BLINKY.elf secondary-outputs
 
 # Tool invocations
-MES-EX-04-BLINKY.elf: $(OBJS) $(USER_OBJS) W:\PROJETOS\2021\MAKING\ EMBEDDED\ SYSTEMS\MES-EX-04-BLINKY\STM32L152RBTX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "MES-EX-04-BLINKY.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"W:\PROJETOS\2021\MAKING EMBEDDED SYSTEMS\MES-EX-04-BLINKY\STM32L152RBTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="MES-EX-04-BLINKY.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+MES-EX-04-BLINKY.elf: $(OBJS) $(USER_OBJS) C:\Users\Andre\My\ Drive\ENGINEERING\STM32\WORKSPACE\MES-EX-04-BLINKY\STM32L152RBTX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "MES-EX-04-BLINKY.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"C:\Users\Andre\My Drive\ENGINEERING\STM32\WORKSPACE\MES-EX-04-BLINKY\STM32L152RBTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="MES-EX-04-BLINKY.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
